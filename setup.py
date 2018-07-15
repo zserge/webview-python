@@ -9,23 +9,6 @@ from distutils.extension import Extension
 from distutils.cmd import Command
 
 
-class sync_command(Command):
-    """A custom command to synchronize top-level webview.h implementation
-    with the one included in the Python bindings source package."""
-    description = 'synchronize webview.h'
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        shutil.copyfile('../../webview.h', 'webview/webview.h')
-        pass
-
-
 if hasattr(os, 'uname'):
     OSNAME = os.uname()[0]
 else:
@@ -70,5 +53,4 @@ setup(
     license='MIT',
     classifiers=[],
     ext_modules=[webview],
-    cmdclass={'sync': sync_command},
 )

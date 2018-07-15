@@ -50,20 +50,20 @@ Also, proper Python-to-JS object mapping is not implemented yet, but is highly
 To build and install the library locally:
 
 ```bash
-python setup.py sync install
+python setup.py install
 ```
 
 To upload a new version:
 
 ```bash
-python setup.py sync sdist
+python setup.py sdist
 twine upload dist/webview-*.tar.gz
 ```
 
 To build and install it locally:
 
 ```bash
-python setup.py sync install
+python setup.py install
 ```
 
 Please, ensure that all sources are formatted using `yapf`.

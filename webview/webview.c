@@ -5,6 +5,10 @@
 #define WEBVIEW_IMPLEMENTATION
 #include "webview.h"
 
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+
 typedef struct { PyObject_HEAD struct webview w; } WebView;
 
 static void WebView_dealloc(WebView *self) {

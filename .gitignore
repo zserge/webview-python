@@ -1,0 +1,6 @@
+.vscode/
+build/
+dist/
+*.egg-info
+*.pyd
+*.so

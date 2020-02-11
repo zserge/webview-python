@@ -7,6 +7,11 @@ from urllib.parse import quote
 import webview
 
 
+HTML = '''
+This is a test<br><button onclick="window.external.invoke(\'print_hello\');">Click me</button>
+'''
+
+
 class MyHTTPRequestHandler(BaseHTTPRequestHandler):
     def send_data(self, data, status=HTTPStatus.OK, mimetype='text/plain'):
         if isinstance(data, str):
@@ -21,18 +26,14 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_data(text.encode('utf8'), mimetype='text/html')
 
     def do_GET(self):
-        self.send_html('This is a test<br><button onclick="window.external.invoke(\'print_hello\');">Click me</button>')
-
-
-class CooperativeHTTPServer(HTTPServer):
-    timeout = 0.001
+        self.send_html(HTML)
 
 
 def run_server():
     while 1:
         port = random.randint(20000, 30000)
         try:
-            server = CooperativeHTTPServer(('localhost', port), MyHTTPRequestHandler)
+            server = HTTPServer(('localhost', port), MyHTTPRequestHandler)
         except Exception:
             continue
         break
@@ -44,21 +45,15 @@ def callback(arg):
     print('callback was called with {!r}'.format(arg))
 
 
-HTML = '''
-This is a test<br><button onclick="window.external.invoke(\'print_hello\');">Click me</button>
-'''
-
-
 def main():
-    # s = run_server()
-    # url = "http://127.0.0.1:{}".format(s.server_port)
-    url = 'data:text/html,' + quote(HTML)
+    s = run_server()
+    url = "http://127.0.0.1:{}".format(s.server_port)
     print('url =', url)
     w = webview.WebView(width=320, height=240, title="My App", url=url, resizable=True, debug=True)
     w.callback = callback
     while w.loop(True):
         pass
-    # s.shutdown()
+    s.shutdown()
 
 
 if __name__ == "__main__":

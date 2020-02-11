@@ -1,12 +1,7 @@
-#!/bin/env python
-
 import os
 import subprocess
-import shutil
 
-from distutils.core import setup
-from distutils.extension import Extension
-from distutils.cmd import Command
+from setuptools import Extension, setup
 
 
 if hasattr(os, 'uname'):

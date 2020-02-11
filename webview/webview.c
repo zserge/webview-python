@@ -9,7 +9,19 @@
 #define PATH_MAX MAX_PATH
 #endif
 
-typedef struct { PyObject_HEAD struct webview w; } WebView;
+typedef struct {
+  PyObject_HEAD
+  struct webview w;
+  PyObject *callback;
+} WebView;
+
+static void webview_python_cb(struct webview *w, const char *arg) {
+  WebView *self = w->userdata;
+  if (self->callback) {
+    PyObject_CallFunction(self->callback, "s", arg);
+    PyErr_Print();
+  }
+}
 
 static void WebView_dealloc(WebView *self) {
   webview_exit(&self->w);
@@ -40,6 +52,8 @@ static int WebView_init(WebView *self, PyObject *args, PyObject *kwds) {
 
   self->w.url = url;
   self->w.title = title;
+  self->w.external_invoke_cb = webview_python_cb;
+  self->w.userdata = self;
 
   return webview_init(&self->w);
 }
@@ -155,6 +169,7 @@ static PyObject *WebView_bind(WebView *self) {
 }
 
 static PyMemberDef WebView_members[] = {
+    {"callback", T_OBJECT, offsetof(WebView, callback), 0, ""},
     {NULL} /* Sentinel */
 };
 static PyMethodDef WebView_methods[] = {

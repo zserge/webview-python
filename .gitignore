@@ -1,6 +1,9 @@
-.vscode/
+.vscode/settings.json
 build/
 dist/
+__pycache__
+*.pyc
 *.egg-info
+*.dist-info
 *.pyd
 *.so

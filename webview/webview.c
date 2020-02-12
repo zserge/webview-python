@@ -207,7 +207,7 @@ static PyTypeObject WebViewType = {
     0,                                                /* tp_setattro */
     0,                                                /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "WebView object",                                 /* tp_doc */
+    "WebView objects",                                /* tp_doc */
     0,                                                /* tp_traverse */
     0,                                                /* tp_clear */
     0,                                                /* tp_richcompare */
@@ -235,7 +235,7 @@ static PyMethodDef module_methods[] = {
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "webview",
-        "Example module",
+        "Python bindings for the WebView C library.",
         0,
         module_methods,
         NULL,

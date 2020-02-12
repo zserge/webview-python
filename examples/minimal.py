@@ -1,15 +1,32 @@
+import time
 from urllib.parse import quote
 
 import webview
 
 
 HTML = '''
-This is a test<br><button onclick="window.external.invoke(\'print_hello\');">Click me</button>
+This is a test</br>
+<div id="timestr"></div></br>
+<button onclick="external.invoke('print_hello');">Click me</button></br>
+<button onclick="external.invoke('quit');">Quit</button>
+<script type="text/javascript">
+    timediv = document.getElementById('timestr');
+    setInterval(function() {
+        external.invoke('getTime');
+    }, 1000);
+    window.setTime = function(t) {
+        timediv.innerHTML = t;
+    };
+</script>
 '''
 
 
-def callback(arg):
+def callback(w, arg):
     print('callback was called with {!r}'.format(arg))
+    if arg == 'getTime':
+        w.eval('setTime({!r})'.format(time.time()))
+    elif arg == 'quit':
+        w.terminate()
 
 
 def main():

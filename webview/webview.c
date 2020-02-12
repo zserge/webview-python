@@ -18,7 +18,7 @@ typedef struct {
 static void webview_python_cb(struct webview *w, const char *arg) {
   WebView *self = w->userdata;
   if (self->callback) {
-    PyObject_CallFunction(self->callback, "s", arg);
+    PyObject_CallFunction(self->callback, "Os", self, arg);
     PyErr_Print();
   }
 }

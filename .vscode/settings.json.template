@@ -7,9 +7,10 @@
         "${python_include_dir}"
     ],
     "python.autoComplete.extraPaths": [
-        "${workspaceFolder}${sep}${built_module_dir}"
+        "${built_module_dir}"
     ],
     "python.linting.pylintArgs": [
+        "--init-hook=import sys; sys.path.insert(0, r'${built_module_dir}')",
         "--extension-pkg-whitelist=webview"
     ]
 }

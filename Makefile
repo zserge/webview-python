@@ -15,7 +15,7 @@ dist:
 install:
 	$(PY) -m pip install .
 
-test: build
+test:
 	$(PY) test.py
 
 upload:

@@ -11,6 +11,7 @@ webview_platform = {'Linux': 'GTK', 'Darwin': 'COCOA', 'Windows': 'WINAPI'}.get(
 python_include_dir = sysconfig.get_path('include').replace('\\', '\\\\')
 py_major_version = sys.version_info[0]
 built_module_dir = sep.join([
+    '${workspaceFolder}',
     'build',
     'lib.{}-{}'.format(
         get_host_platform(),

@@ -26,8 +26,6 @@ def main():
     )
     sys.path.insert(0, module_dir)
 
-    print(sys.path)
-
     # Run examples/minimal.py
     runpy.run_path(
         os.path.join(

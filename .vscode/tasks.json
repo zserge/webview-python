@@ -9,7 +9,7 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "command": "${config:python.pythonPath} setup.py build",
+            "command": "${config:python.pythonPath} setup.py build -f --inplace",
             "group": {
                 "kind": "build",
                 "isDefault": true

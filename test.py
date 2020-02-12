@@ -1,9 +1,7 @@
-import distutils.util
 import os
 import runpy
 import subprocess
 import sys
-import sysconfig
 
 
 def main():
@@ -11,30 +9,17 @@ def main():
 
     # Build the package (if necessary)
     subprocess.check_call(
-        [sys.executable, 'setup.py', 'build'],
+        [sys.executable, 'setup.py', 'build_ext', '--inplace'],
         cwd=base_dir,
     )
 
-    # Make sure we import the built C extension (and not a properly installed one, if it exists)
-    module_dir = os.path.join(
-        base_dir,
-        'build',
-        'lib.{}-{}'.format(
-            distutils.util.get_host_platform(),
-            sysconfig.get_config_var('py_version_short'),
-        )
-    )
-    sys.path.insert(0, module_dir)
+    # Run code
+    if len(sys.argv) > 1:
+        fn = sys.argv[1]
+    else:
+        fn = os.path.join(base_dir, 'examples', 'minimal.py')
 
-    # Run examples/minimal.py
-    runpy.run_path(
-        os.path.join(
-            base_dir,
-            'examples',
-            'minimal.py',
-        ),
-        run_name='__main__',
-    )
+    runpy.run_path(fn, run_name='__main__')
 
 
 if __name__ == "__main__":

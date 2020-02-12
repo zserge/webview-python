@@ -169,22 +169,21 @@ static PyObject *WebView_bind(WebView *self) {
 }
 
 static PyMemberDef WebView_members[] = {
-    {"callback", T_OBJECT, offsetof(WebView, callback), 0, ""},
+    {"callback", T_OBJECT, offsetof(WebView, callback), 0, "Sould be a callabale that accepts (WebView, str) or None"},
     {NULL} /* Sentinel */
 };
 static PyMethodDef WebView_methods[] = {
-    {"run", (PyCFunction)WebView_run, METH_NOARGS, "..."},
-    {"loop", (PyCFunction)WebView_loop, METH_KEYWORDS | METH_VARARGS, "..."},
-    {"terminate", (PyCFunction)WebView_terminate, METH_NOARGS, "..."},
-    {"dispatch", (PyCFunction)WebView_dispatch, METH_VARARGS, "..."},
-    {"eval", (PyCFunction)WebView_eval, METH_VARARGS, "..."},
-    {"inject_css", (PyCFunction)WebView_inject_css, METH_VARARGS, "..."},
-    {"dialog", (PyCFunction)WebView_dialog, METH_KEYWORDS | METH_VARARGS, "..."},
-    {"set_title", (PyCFunction)WebView_set_title, METH_VARARGS, "..."},
-    {"set_fullscreen", (PyCFunction)WebView_set_fullscreen, METH_VARARGS,
-     "..."},
-    {"set_color", (PyCFunction)WebView_set_color, METH_VARARGS, "..."},
-    {"bind", (PyCFunction)WebView_bind, METH_VARARGS, "..."},
+    {"run", (PyCFunction)WebView_run, METH_NOARGS, "WebView.run() -> None"},
+    {"loop", (PyCFunction)WebView_loop, METH_KEYWORDS | METH_VARARGS, "WebView.loop(blocking: int) -> bool"},
+    {"terminate", (PyCFunction)WebView_terminate, METH_NOARGS, "WebView.terminate() -> None"},
+    {"dispatch", (PyCFunction)WebView_dispatch, METH_VARARGS, "WebView.dispatch(set_callback: Callable) -> None"},
+    {"eval", (PyCFunction)WebView_eval, METH_VARARGS, "WebView.eval(js: str) -> None"},
+    {"inject_css", (PyCFunction)WebView_inject_css, METH_VARARGS, "WebView.inject_css(css: str) -> None"},
+    {"dialog", (PyCFunction)WebView_dialog, METH_KEYWORDS | METH_VARARGS, "WebView.dialog(type: int, flags: int, title: str, arg: str) -> str"},
+    {"set_title", (PyCFunction)WebView_set_title, METH_VARARGS, "WebView.set_title(title: str) -> None"},
+    {"set_fullscreen", (PyCFunction)WebView_set_fullscreen, METH_VARARGS, "WebView.set_fullscreen(fullscreen: int) -> None"},
+    {"set_color", (PyCFunction)WebView_set_color, METH_VARARGS, "WebView.set_color(r: int, g: int, b: int, a: int = 255) -> None"},
+    {"bind", (PyCFunction)WebView_bind, METH_VARARGS, "WebView.bind() -> None"},
     {NULL} /* Sentinel */
 };
 
@@ -208,7 +207,7 @@ static PyTypeObject WebViewType = {
     0,                                                /* tp_setattro */
     0,                                                /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "WebView objects",                                /* tp_doc */
+    "WebView object",                                 /* tp_doc */
     0,                                                /* tp_traverse */
     0,                                                /* tp_clear */
     0,                                                /* tp_richcompare */

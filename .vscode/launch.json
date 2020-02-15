@@ -5,14 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "WebView: Test",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/test.py",
             "args": [
                 "${file}"
             ],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

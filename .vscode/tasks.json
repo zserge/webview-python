@@ -9,7 +9,7 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "command": "${config:python.pythonPath} setup.py build -f --inplace",
+            "command": "${config:python.pythonPath} setup.py build_ext -f --inplace",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -42,10 +42,10 @@
         {
             "label": "Create settings.json",
             "type": "shell",
-            "command": "./make_settings_json.py",
-            "windows": {
-                "command": "make_settings_json.py"
-            },
+            "command": "${config:python.pythonPath}",
+            "args": [
+                "make_settings_json.py"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}/.vscode"
             },

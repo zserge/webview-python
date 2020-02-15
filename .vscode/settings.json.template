@@ -6,7 +6,11 @@
     "C_Cpp.default.includePath": [
         "${python_include_dir}"
     ],
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}"
+    ],
     "python.linting.pylintArgs": [
+        "--init-hook=import sys;sys.path.insert(0, r'${workspaceFolder}')",
         "--extension-pkg-whitelist=webview"
     ]
 }

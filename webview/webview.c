@@ -134,8 +134,7 @@ static PyObject *WebView_dialog(WebView *self, PyObject *args, PyObject *kwds) {
   const char *arg = NULL;
   char result[PATH_MAX];
   static char *kwlist[] = {"type", "flags", "title", "arg", NULL};
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "iiss", kwlist, &type, &flags,
-                                   &title, &arg)) {
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "iiss", kwlist, &type, &flags, &title, &arg)) {
     return NULL;
   }
   webview_dialog(&self->w, type, flags, title, arg, result, sizeof(result));
@@ -151,7 +150,7 @@ static void webview_dispatch_cb(struct webview *w, void *arg) {
 
 static PyObject *WebView_dispatch(WebView *self, PyObject *args) {
   PyObject *tmp;
-  if (!PyArg_ParseTuple(args, "O:set_callback", &tmp)) {
+  if (!PyArg_ParseTuple(args, "O:dispatch", &tmp)) {
     return NULL;
   }
   if (!PyCallable_Check(tmp)) {
@@ -176,7 +175,7 @@ static PyMethodDef WebView_methods[] = {
     {"run", (PyCFunction)WebView_run, METH_NOARGS, "WebView.run() -> None"},
     {"loop", (PyCFunction)WebView_loop, METH_KEYWORDS | METH_VARARGS, "WebView.loop(blocking: int) -> bool"},
     {"terminate", (PyCFunction)WebView_terminate, METH_NOARGS, "WebView.terminate() -> None"},
-    {"dispatch", (PyCFunction)WebView_dispatch, METH_VARARGS, "WebView.dispatch(set_callback: Callable) -> None"},
+    {"dispatch", (PyCFunction)WebView_dispatch, METH_VARARGS, "WebView.dispatch(callback: Callable) -> None"},
     {"eval", (PyCFunction)WebView_eval, METH_VARARGS, "WebView.eval(js: str) -> None"},
     {"inject_css", (PyCFunction)WebView_inject_css, METH_VARARGS, "WebView.inject_css(css: str) -> None"},
     {"dialog", (PyCFunction)WebView_dialog, METH_KEYWORDS | METH_VARARGS, "WebView.dialog(type: int, flags: int, title: str, arg: str) -> str"},
@@ -207,7 +206,9 @@ static PyTypeObject WebViewType = {
     0,                                                /* tp_setattro */
     0,                                                /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "WebView objects",                                /* tp_doc */
+    "webview.WebView(width: int, height: int, "
+    "resizable: bool = False, debug: bool = False, "
+    "url: str = '', title: str = '')",                /* tp_doc */
     0,                                                /* tp_traverse */
     0,                                                /* tp_clear */
     0,                                                /* tp_richcompare */
@@ -259,8 +260,7 @@ PyMODINIT_FUNC MODINIT_NAME(void) {
 #if PY_MAJOR_VERSION >= 3
     m = PyModule_Create(&moduledef);
 #else
-    m = Py_InitModule3("webview", module_methods,
-        "Example module that creates an extension type.");
+    m = Py_InitModule3("webview", module_methods, "Python bindings for the WebView C library.");
 #endif
   if (m == NULL) {
     return MODINIT_ERROR;

@@ -1,0 +1,25 @@
+name: "Build python package"
+on:
+  repository_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Upgrade build environment
+      run: python -m pip install -U setuptools wheel
+    - name: Build package
+      run: python setup.py bdist_wheel
+    - name: Save results
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist-${{ matrix.os }}-${{ matrix.python-version }}
+        path: dist

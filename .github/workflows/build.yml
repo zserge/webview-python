@@ -1,9 +1,8 @@
 name: "Build python package"
-on:
-  repository_dispatch
+on: [repository_dispatch]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]

@@ -58,6 +58,12 @@ setup(
         'Topic :: Software Development :: User Interfaces',
     ],
     ext_modules=[webview],
+    py_modules=['pywebview'],
+    entry_points=dict(
+        gui_scripts=[
+            'pywv = pywebview:main',
+        ],
+    ),
     extras_require=dict(
         dev=[
             'pip',

@@ -1,6 +1,6 @@
 #include <Python.h>
 #include "structmember.h"
-#include "webview.h"
+#include "webview/webview.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX MAX_PATH
@@ -12,39 +12,51 @@ typedef struct {
   PyObject *callback;
 } WebView;
 
-// static void webview_python_cb(webview_t w, const char *arg) {
-//   WebView *self = w->userdata;
-//   if (self->callback) {
-//     PyObject_CallFunction(self->callback, "Os", self, arg);
-//     PyErr_Print();
-//   }
-// }
+static void webview_python_cb(const char *seq, const char *req, void *self) {
+  if (((WebView *)self)->callback) {
+    printf("Calling self.callback(\"%s\", \"%s\")\n", seq, req);
+    PyObject_CallFunction(((WebView *)self)->callback, "Oss", self, seq, req);
+    PyErr_Print();
+  }
+}
 
 static void WebView_dealloc(WebView *self) {
   webview_destroy(self->w);
   Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
+static PyObject *WebView_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+  WebView *self = (WebView *)type->tp_alloc(type, 0);
+  if (self == NULL) return NULL;
+  return (PyObject *)self;
+}
+
 static int WebView_init(WebView *self, PyObject *args, PyObject *kwds) {
-  int width = 480, height = 320;
-  char resizable = 0;
-  char debug = 0;
+  int width = 480;
+  int height = 320;
+  int resizable = 0;
+  int debug = 0;
   char *url = NULL;
   char *title = NULL;
-  const char *kwlist[] = {"width", "height", "resizable", "debug", "url", "title", NULL};
+  char *kwlist[] = {"width", "height", "resizable", "debug", "url", "title", NULL};
 
   if (!PyArg_ParseTupleAndKeywords(
-          args, kwds, "ii|iiss", kwlist, &width, &height,
+          args, kwds, "|iiiiss", kwlist, &width, &height,
           &resizable, &debug, &url, &title)) {
     return -1;
   }
 
+  printf("size=%dx%d, resizable=%d, debug=%d, title=\"%s\"\n", width, height, resizable, debug, title);
+
   self->w = webview_create(debug, NULL);
-  webview_set_title(self->w, title);
   webview_set_size(self->w, width, height, resizable ? WEBVIEW_HINT_NONE: WEBVIEW_HINT_FIXED);
+  webview_set_title(self->w, title);
+  webview_bind(self->w, "invoke", webview_python_cb, self);
   webview_navigate(self->w, url);
 
   // TODO: Maybe deal with bind/return ?
+
+  return 0;
 }
 
 static PyObject *WebView_run(WebView *self) {
@@ -97,12 +109,11 @@ static PyObject *WebView_dispatch(WebView *self, PyObject *args) {
 }
 
 static PyObject *WebView_bind(WebView *self) {
-  /* TODO, very complex implementation */
   Py_RETURN_NONE;
 }
 
 static PyMemberDef WebView_members[] = {
-    {"callback", T_OBJECT, offsetof(WebView, callback), 0, "Sould be a callabale that accepts (WebView, str) or None"},
+    {"callback", T_OBJECT, offsetof(WebView, callback), 0, "Sould be a callabale that accepts (WebView, str, str) or None"},
     {NULL} /* Sentinel */
 };
 static PyMethodDef WebView_methods[] = {
@@ -154,7 +165,7 @@ static PyTypeObject WebViewType = {
     0,                                                /* tp_dictoffset */
     (initproc)WebView_init,                           /* tp_init */
     0,                                                /* tp_alloc */
-    0,                                                /* tp_new */
+    WebView_new,                                      /* tp_new */
 };
 
 static PyMethodDef module_methods[] = {

@@ -20,12 +20,13 @@ if OSNAME == 'Linux':
 elif OSNAME == 'Darwin':
     define_macros = [('WEBVIEW_COCOA', '1')]
     extra_cflags = ['-std=c++11']
-    extra_ldflags = ['-framework', 'CoreAudio']
+    extra_ldflags = ['-framework', 'WebKit']
 
 elif OSNAME == 'Windows':
     define_macros = [('WEBVIEW_WINAPI', '1')]
-    extra_cflags = ['/std:c++17']
-    extra_ldflags = []
+    extra_cflags = ['/std:c++17', '/Iwebview', '/Iwebview\\script']
+    extra_ldflags = [R'webview\script\microsoft.web.webview2.1.0.664.37\build\native\x64\WebView2Loader.dll.lib']
+
 
 webview = Extension(
     'webview',

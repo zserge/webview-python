@@ -19,17 +19,17 @@ if OSNAME == 'Linux':
 
 elif OSNAME == 'Darwin':
     define_macros = [('WEBVIEW_COCOA', '1')]
-    extra_cflags = ""
+    extra_cflags = ['-std=c++11']
     extra_ldflags = ['-framework', 'CoreAudio']
 
 elif OSNAME == 'Windows':
     define_macros = [('WEBVIEW_WINAPI', '1')]
-    extra_cflags = ""
-    extra_ldflags = ['ole32.lib', 'comctl32.lib', 'oleaut32.lib', 'uuid.lib', 'gdi32.lib', 'advapi32.lib']
+    extra_cflags = ['/std:c++17']
+    extra_ldflags = []
 
 webview = Extension(
     'webview',
-    sources=['webview/webview.c'],
+    sources=['webview.cpp'],
     define_macros=define_macros,
     extra_compile_args=extra_cflags,
     extra_link_args=extra_ldflags,

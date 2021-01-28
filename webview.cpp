@@ -1,8 +1,5 @@
 #include <Python.h>
-
 #include "structmember.h"
-
-#define WEBVIEW_IMPLEMENTATION
 #include "webview.h"
 
 #ifndef PATH_MAX
@@ -11,101 +8,61 @@
 
 typedef struct {
   PyObject_HEAD
-  struct webview w;
+  webview_t w;
   PyObject *callback;
 } WebView;
 
-static void webview_python_cb(struct webview *w, const char *arg) {
-  WebView *self = w->userdata;
-  if (self->callback) {
-    PyObject_CallFunction(self->callback, "Os", self, arg);
-    PyErr_Print();
-  }
-}
+// static void webview_python_cb(webview_t w, const char *arg) {
+//   WebView *self = w->userdata;
+//   if (self->callback) {
+//     PyObject_CallFunction(self->callback, "Os", self, arg);
+//     PyErr_Print();
+//   }
+// }
 
 static void WebView_dealloc(WebView *self) {
-  webview_exit(&self->w);
+  webview_destroy(self->w);
   Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *WebView_new(PyTypeObject *type, PyObject *args,
-                             PyObject *kwds) {
-  WebView *self = (WebView *)type->tp_alloc(type, 0);
-  if (self == NULL) {
-    return NULL;
-  }
-  memset(&self->w, 0, sizeof(self->w));
-  return (PyObject *)self;
-}
-
 static int WebView_init(WebView *self, PyObject *args, PyObject *kwds) {
-  const char *url = NULL;
-  const char *title = NULL;
-  static char *kwlist[] = {"width", "height", "resizable", "debug",
-                           "url",   "title",  NULL};
+  int width = 480, height = 320;
+  char resizable = 0;
+  char debug = 0;
+  char *url = NULL;
+  char *title = NULL;
+  const char *kwlist[] = {"width", "height", "resizable", "debug", "url", "title", NULL};
 
   if (!PyArg_ParseTupleAndKeywords(
-          args, kwds, "ii|iiss", kwlist, &self->w.width, &self->w.height,
-          &self->w.resizable, &self->w.debug, &url, &title)) {
+          args, kwds, "ii|iiss", kwlist, &width, &height,
+          &resizable, &debug, &url, &title)) {
     return -1;
   }
 
-  self->w.url = url;
-  self->w.title = title;
-  self->w.external_invoke_cb = webview_python_cb;
-  self->w.userdata = self;
+  self->w = webview_create(debug, NULL);
+  webview_set_title(self->w, title);
+  webview_set_size(self->w, width, height, resizable ? WEBVIEW_HINT_NONE: WEBVIEW_HINT_FIXED);
+  webview_navigate(self->w, url);
 
-  return webview_init(&self->w);
+  // TODO: Maybe deal with bind/return ?
 }
 
 static PyObject *WebView_run(WebView *self) {
-  while (webview_loop(&self->w, 1) == 0)
-    ;
+  webview_run(self->w);
   Py_RETURN_NONE;
 }
 
-static PyObject *WebView_loop(WebView *self, PyObject *args, PyObject *kwds) {
-  int blocking = 1;
-  static char *kwlist[] = {"blocking", NULL};
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &blocking)) {
-    return NULL;
-  }
-  if (webview_loop(&self->w, blocking) == 0) {
-    Py_RETURN_TRUE;
-  } else {
-    Py_RETURN_FALSE;
-  }
-}
-
 static PyObject *WebView_terminate(WebView *self) {
-  webview_terminate(&self->w);
+  webview_terminate(self->w);
   Py_RETURN_NONE;
 }
 
 static PyObject *WebView_set_title(WebView *self, PyObject *args) {
-  const char *title = "";
+  char *title = NULL;
   if (!PyArg_ParseTuple(args, "s", &title)) {
     return NULL;
   }
-  webview_set_title(&self->w, title);
-  Py_RETURN_NONE;
-}
-
-static PyObject *WebView_set_fullscreen(WebView *self, PyObject *args) {
-  int fullscreen = 0;
-  if (!PyArg_ParseTuple(args, "i", &fullscreen)) {
-    return NULL;
-  }
-  webview_set_fullscreen(&self->w, fullscreen);
-  Py_RETURN_NONE;
-}
-
-static PyObject *WebView_set_color(WebView *self, PyObject *args) {
-  int r, g, b, a = 255;
-  if (!PyArg_ParseTuple(args, "iii|i", &r, &g, &b, &a)) {
-    return NULL;
-  }
-  webview_set_color(&self->w, r, g, b, a);
+  webview_set_title(self->w, title);
   Py_RETURN_NONE;
 }
 
@@ -114,34 +71,11 @@ static PyObject *WebView_eval(WebView *self, PyObject *args) {
   if (!PyArg_ParseTuple(args, "s", &js)) {
     return NULL;
   }
-  webview_eval(&self->w, js);
+  webview_eval(self->w, js);
   Py_RETURN_NONE;
 }
 
-static PyObject *WebView_inject_css(WebView *self, PyObject *args) {
-  const char *css = NULL;
-  if (!PyArg_ParseTuple(args, "s", &css)) {
-    return NULL;
-  }
-  webview_inject_css(&self->w, css);
-  Py_RETURN_NONE;
-}
-
-static PyObject *WebView_dialog(WebView *self, PyObject *args, PyObject *kwds) {
-  int type = 0;
-  int flags = 0;
-  const char *title = NULL;
-  const char *arg = NULL;
-  char result[PATH_MAX];
-  static char *kwlist[] = {"type", "flags", "title", "arg", NULL};
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "iiss", kwlist, &type, &flags, &title, &arg)) {
-    return NULL;
-  }
-  webview_dialog(&self->w, type, flags, title, arg, result, sizeof(result));
-  return PyUnicode_FromString(result);
-}
-
-static void webview_dispatch_cb(struct webview *w, void *arg) {
+static void webview_dispatch_cb(webview_t w, void *arg) {
   PyObject *cb = (PyObject *)arg;
   /* TODO */
   PyObject_CallObject(cb, NULL);
@@ -158,7 +92,7 @@ static PyObject *WebView_dispatch(WebView *self, PyObject *args) {
     return NULL;
   }
   Py_XINCREF(tmp);
-  webview_dispatch(&self->w, webview_dispatch_cb, tmp);
+  webview_dispatch(self->w, webview_dispatch_cb, tmp);
   Py_RETURN_NONE;
 }
 
@@ -173,15 +107,10 @@ static PyMemberDef WebView_members[] = {
 };
 static PyMethodDef WebView_methods[] = {
     {"run", (PyCFunction)WebView_run, METH_NOARGS, "WebView.run() -> None"},
-    {"loop", (PyCFunction)WebView_loop, METH_KEYWORDS | METH_VARARGS, "WebView.loop(blocking: int) -> bool"},
     {"terminate", (PyCFunction)WebView_terminate, METH_NOARGS, "WebView.terminate() -> None"},
     {"dispatch", (PyCFunction)WebView_dispatch, METH_VARARGS, "WebView.dispatch(callback: Callable) -> None"},
     {"eval", (PyCFunction)WebView_eval, METH_VARARGS, "WebView.eval(js: str) -> None"},
-    {"inject_css", (PyCFunction)WebView_inject_css, METH_VARARGS, "WebView.inject_css(css: str) -> None"},
-    {"dialog", (PyCFunction)WebView_dialog, METH_KEYWORDS | METH_VARARGS, "WebView.dialog(type: int, flags: int, title: str, arg: str) -> str"},
     {"set_title", (PyCFunction)WebView_set_title, METH_VARARGS, "WebView.set_title(title: str) -> None"},
-    {"set_fullscreen", (PyCFunction)WebView_set_fullscreen, METH_VARARGS, "WebView.set_fullscreen(fullscreen: int) -> None"},
-    {"set_color", (PyCFunction)WebView_set_color, METH_VARARGS, "WebView.set_color(r: int, g: int, b: int, a: int = 255) -> None"},
     {"bind", (PyCFunction)WebView_bind, METH_VARARGS, "WebView.bind() -> None"},
     {NULL} /* Sentinel */
 };
@@ -225,7 +154,7 @@ static PyTypeObject WebViewType = {
     0,                                                /* tp_dictoffset */
     (initproc)WebView_init,                           /* tp_init */
     0,                                                /* tp_alloc */
-    WebView_new,                                      /* tp_new */
+    0,                                                /* tp_new */
 };
 
 static PyMethodDef module_methods[] = {

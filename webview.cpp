@@ -59,9 +59,9 @@ static int WebView_init(WebView *self, PyObject *args, PyObject *kwds) {
 }
 
 static PyObject *WebView_run(WebView *self) {
-  Py_BEGIN_ALLOW_THREADS
+  // Py_BEGIN_ALLOW_THREADS
   webview_run(self->w);
-  Py_END_ALLOW_THREADS
+  // Py_END_ALLOW_THREADS
   Py_RETURN_NONE;
 }
 

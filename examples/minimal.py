@@ -11,11 +11,13 @@ This is a test<br/>
 <button onclick="quit();">Quit</button>
 <script type="text/javascript">
     timediv = document.getElementById('timestr');
-    setInterval(function() {
+    updateTime = () => {
         get_time('%Y-%m-%d %H:%M:%S').then((s) => {
             timediv.innerHTML = s;
         });
-    }, 1000);
+    };
+    setInterval(updateTime, 1000);
+    updateTime();
 </script>
 '''
 
@@ -23,6 +25,7 @@ This is a test<br/>
 def get_time(w, req):
     fmt = json.loads(req)[0]
     return json.dumps(time.strftime(fmt))
+
 
 def quit(w, req):
     w.terminate()

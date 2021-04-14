@@ -1,14 +1,17 @@
+import json
 import random
 import threading
 import time
-from http.server import BaseHTTPRequestHandler, HTTPServer, HTTPStatus
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import quote
+from itertools import count
 
 import webview
 
 
 HTML = '''
-This is a test<br><button onclick="window.external.invoke(\'print_hello\');">Click me</button>
+This is a test<br><button onclick="invoke('print_hello');">Click me</button>
 '''
 
 
@@ -41,18 +44,26 @@ def run_server():
     return server
 
 
-def callback(arg):
-    print('callback was called with {!r}'.format(arg))
+def callback(w, req):
+    # print(f'callback was called with {req!r}')
+    arg = json.loads(req)[0]
+    print(f'callback was called with {arg!r}')
+
+
+def threadfunc():
+    for n in count():
+        print(n)
+        time.sleep(0.1)
 
 
 def main():
     s = run_server()
-    url = "http://127.0.0.1:{}".format(s.server_port)
-    print('url =', url)
-    w = webview.WebView(width=320, height=240, title="My App", url=url, resizable=True, debug=True)
-    w.callback = callback
-    while w.loop(True):
-        pass
+    url = f'http://127.0.0.1:{s.server_port}'
+    print(url)
+    w = webview.WebView(width=320, height=240, title="My App", resizable=True, debug=True)
+    w.bind('invoke', callback)
+    w.navigate(url)
+    w.run()
     s.shutdown()
 
 

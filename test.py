@@ -12,7 +12,7 @@ def main():
     base_dir = dirname(__file__)
 
     # Build the package (if necessary)
-    subprocess.check_call([sys.executable, 'setup.py', 'build_ext', '--inplace'], cwd=base_dir)
+    # subprocess.check_call([sys.executable, 'setup.py', 'build_ext', '--inplace'], cwd=base_dir)
 
     # Run code
     if len(sys.argv) > 1:
@@ -20,7 +20,7 @@ def main():
     else:
         fn = os.path.join(base_dir, 'examples', 'minimal.py')
 
-    os.chdir(dirname(fn))
+    os.chdir(base_dir)
     runpy.run_path(fn, run_name='__main__')
 
 

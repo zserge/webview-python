@@ -6,37 +6,33 @@ import webview
 
 
 HTML = '''
-This is a test</br>
-<div id="timestr"></div></br>
-<button onclick="invoke('print_hello');">Click me</button></br>
-<button onclick="invoke('quit');">Quit</button>
+This is a test<br/>
+<div id="timestr">Time should tick here</div><br/>
+<button onclick="quit();">Quit</button>
 <script type="text/javascript">
     timediv = document.getElementById('timestr');
     setInterval(function() {
-        invoke('getTime');
+        get_time('%Y-%m-%d %H:%M:%S').then((s) => {
+            timediv.innerHTML = s;
+        });
     }, 1000);
-    window.setTime = function(t) {
-        timediv.innerHTML = t;
-    };
 </script>
 '''
 
 
-def callback(w, seq, req):
-    print(f'callback was called with {seq!r} {req!r}')
-    arg = json.loads(req)[0]
-    print('callback was called with {!r}'.format(arg))
-    if arg == 'getTime':
-        w.eval('setTime({!r})'.format(time.time()))
-    elif arg == 'quit':
-        w.terminate()
+def get_time(w, req):
+    fmt = json.loads(req)[0]
+    return json.dumps(time.strftime(fmt))
+
+def quit(w, req):
+    w.terminate()
 
 
 def main():
-    url = 'data:text/html,' + quote(HTML)
-    print('url =', url)
-    w = webview.WebView(width=320, height=240, title="My App", url=url, resizable=True, debug=True)
-    w.callback = callback
+    w = webview.WebView(width=320, height=240, resizable=True, title="My App", debug=True)
+    w.bind('get_time', get_time)
+    w.bind('quit', quit)
+    w.navigate('data:text/html,' + quote(HTML))
     w.run()
 
 

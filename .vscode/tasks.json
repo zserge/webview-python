@@ -14,7 +14,10 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": []
+            "problemMatcher": [
+                "$msCompile",
+                "$gcc"
+            ]
         },
         {
             "label": "Build distributables",

@@ -1,0 +1,9 @@
+{
+    "C_Cpp.default.defines": [
+        "PY_MAJOR_VERSION=${py_major_version}",
+        "WEBVIEW_${webview_platform}"
+    ],
+    "C_Cpp.default.includePath": [
+        "${python_include_dir}"
+    ]
+}
